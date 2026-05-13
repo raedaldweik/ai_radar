@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { anthropic, MODELS } from "../lib/anthropic";
+import { anthropic, MODELS } from "../lib/anthropic.js";
 
 type Role = "user" | "assistant";
 type Lang = "en" | "ar";

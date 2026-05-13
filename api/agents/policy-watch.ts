@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { anthropic, MODELS } from '../../lib/anthropic';
-import { startEventStream } from '../../lib/stream';
+import { anthropic, MODELS } from '../../lib/anthropic.js';
+import { startEventStream } from '../../lib/stream.js';
 
 interface PolicyWatchItem {
   id: string;
