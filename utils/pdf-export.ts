@@ -1,0 +1,258 @@
+import jsPDF from 'jspdf';
+import { marked } from 'marked';
+
+interface ExportOptions {
+  title: string;
+  agentLabel: string;
+  profileName: string;
+  markdown: string;
+  sources?: { uri: string; title: string }[];
+}
+
+// Tokenize the markdown and render each block onto the PDF page.
+// We don't try to be a perfect markdown engine — just handle the structures
+// our agents actually emit: h1/h2/h3, paragraphs, lists, bold, em.
+export async function exportArtifactToPDF(opts: ExportOptions): Promise<void> {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+  // Page geometry
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 50;
+  const contentWidth = pageWidth - margin * 2;
+  let y = margin;
+
+  // Helper: add a new page if we'd overflow
+  const ensureSpace = (needed: number) => {
+    if (y + needed > pageHeight - margin) {
+      doc.addPage();
+      y = margin;
+    }
+  };
+
+  // Helper: write wrapped text in the current style
+  const writeWrapped = (text: string, fontSize: number, fontStyle: 'normal' | 'bold' | 'italic', color: [number, number, number] = [30, 30, 30]) => {
+    doc.setFontSize(fontSize);
+    doc.setFont('helvetica', fontStyle);
+    doc.setTextColor(...color);
+    const lines = doc.splitTextToSize(text, contentWidth);
+    for (const line of lines) {
+      ensureSpace(fontSize * 1.4);
+      doc.text(line, margin, y);
+      y += fontSize * 1.35;
+    }
+  };
+
+  // Header — agent label + profile + date
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  const headerText = `${opts.agentLabel} · ${opts.profileName} · ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  doc.text(headerText, margin, y);
+  y += 14;
+
+  // Thin divider
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.5);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 18;
+
+  // Tokenize markdown using marked's lexer — gives us a clean block tree
+  const tokens = marked.lexer(opts.markdown);
+
+  for (const token of tokens) {
+    if (token.type === 'heading') {
+      ensureSpace(30);
+      const sizes = { 1: 18, 2: 14, 3: 12, 4: 11, 5: 10, 6: 10 } as Record<number, number>;
+      const fontSize = sizes[token.depth] || 11;
+      y += token.depth === 1 ? 6 : 10; // breathing room before a heading
+      writeWrapped(stripInline(token.text), fontSize, 'bold', [20, 20, 20]);
+      y += 4;
+    } else if (token.type === 'paragraph') {
+      writeInlineParagraph(doc, token.text, margin, contentWidth, () => y, (newY) => (y = newY), ensureSpace);
+      y += 8;
+    } else if (token.type === 'list') {
+      for (const item of token.items as any[]) {
+        ensureSpace(20);
+        const bullet = token.ordered ? `${(item.number ?? token.items.indexOf(item) + 1)}.` : '•';
+        // Bullet glyph
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(60, 60, 60);
+        doc.text(bullet, margin, y);
+        // Item text, indented
+        const itemText = (item.text || '').toString();
+        const indent = 18;
+        writeInlineList(doc, itemText, margin + indent, contentWidth - indent, () => y, (newY) => (y = newY), ensureSpace);
+        y += 4;
+      }
+      y += 4;
+    } else if (token.type === 'space') {
+      y += 6;
+    } else if (token.type === 'hr') {
+      ensureSpace(20);
+      doc.setDrawColor(220, 220, 220);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 14;
+    } else if (token.type === 'blockquote') {
+      ensureSpace(30);
+      const quoteText = (token as any).text || '';
+      writeWrapped(quoteText, 10, 'italic', [80, 80, 80]);
+      y += 6;
+    }
+    // (Code blocks, tables etc. fall through silently — agents don't emit these.)
+  }
+
+  // Sources section
+  if (opts.sources && opts.sources.length > 0) {
+    y += 12;
+    ensureSpace(40);
+    writeWrapped('Sources', 11, 'bold', [60, 60, 60]);
+    y += 4;
+    opts.sources.forEach((s, i) => {
+      const line = `[${i + 1}] ${s.title}`;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(80, 100, 160);
+      const wrapped = doc.splitTextToSize(line, contentWidth);
+      for (const w of wrapped) {
+        ensureSpace(12);
+        doc.text(w, margin, y);
+        y += 11;
+      }
+      // URL on next line, smaller
+      doc.setFontSize(8);
+      doc.setTextColor(140, 140, 140);
+      const urlLines = doc.splitTextToSize(s.uri, contentWidth);
+      for (const w of urlLines) {
+        ensureSpace(11);
+        doc.text(w, margin, y);
+        y += 10;
+      }
+      y += 4;
+    });
+  }
+
+  // Footer on every page
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(160, 160, 160);
+    doc.text(
+      `Generated by GDRFA AI Radar · Page ${i} of ${pageCount}`,
+      pageWidth / 2,
+      pageHeight - 24,
+      { align: 'center' }
+    );
+  }
+
+  // Filename: agent + date
+  const safeTitle = opts.title.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60).toLowerCase();
+  const dateSlug = new Date().toISOString().slice(0, 10);
+  doc.save(`${safeTitle}-${dateSlug}.pdf`);
+}
+
+// Strip inline markdown (** _ etc.) to plain text. Used for headings.
+function stripInline(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    .replace(/`(.+?)`/g, '$1');
+}
+
+// Render a paragraph honoring **bold** spans inline.
+function writeInlineParagraph(
+  doc: jsPDF,
+  text: string,
+  x: number,
+  maxWidth: number,
+  getY: () => number,
+  setY: (n: number) => void,
+  ensureSpace: (h: number) => void
+) {
+  const fontSize = 10.5;
+  const lineHeight = fontSize * 1.45;
+  doc.setFontSize(fontSize);
+  doc.setTextColor(40, 40, 40);
+
+  const segments = parseInlineSegments(text);
+  let lineSegments: { text: string; bold: boolean; italic: boolean; width: number }[] = [];
+  let lineWidth = 0;
+
+  const flushLine = () => {
+    ensureSpace(lineHeight);
+    let cursor = x;
+    for (const seg of lineSegments) {
+      doc.setFont('helvetica', seg.bold && seg.italic ? 'bolditalic' : seg.bold ? 'bold' : seg.italic ? 'italic' : 'normal');
+      doc.text(seg.text, cursor, getY());
+      cursor += seg.width;
+    }
+    setY(getY() + lineHeight);
+    lineSegments = [];
+    lineWidth = 0;
+  };
+
+  for (const segment of segments) {
+    // Split on whitespace so we can wrap inside the segment if needed
+    const words = segment.text.split(/(\s+)/);
+    for (const word of words) {
+      if (!word) continue;
+      doc.setFont('helvetica', segment.bold && segment.italic ? 'bolditalic' : segment.bold ? 'bold' : segment.italic ? 'italic' : 'normal');
+      const wordWidth = doc.getTextWidth(word);
+      if (lineWidth + wordWidth > maxWidth && lineSegments.length > 0) {
+        flushLine();
+        if (/^\s+$/.test(word)) continue; // don't start a new line with whitespace
+      }
+      lineSegments.push({ text: word, bold: segment.bold, italic: segment.italic, width: wordWidth });
+      lineWidth += wordWidth;
+    }
+  }
+  if (lineSegments.length > 0) flushLine();
+}
+
+// Same as paragraph but at a smaller indent for list items.
+function writeInlineList(
+  doc: jsPDF,
+  text: string,
+  x: number,
+  maxWidth: number,
+  getY: () => number,
+  setY: (n: number) => void,
+  ensureSpace: (h: number) => void
+) {
+  writeInlineParagraph(doc, text, x, maxWidth, getY, setY, ensureSpace);
+}
+
+interface InlineSegment {
+  text: string;
+  bold: boolean;
+  italic: boolean;
+}
+
+function parseInlineSegments(text: string): InlineSegment[] {
+  // Handle **bold**, *italic*, _italic_. Keep it simple — markdown gymnastics aren't worth it.
+  const segments: InlineSegment[] = [];
+  const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|_[^_]+_)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ text: text.slice(lastIndex, match.index), bold: false, italic: false });
+    }
+    const token = match[0];
+    if (token.startsWith('**')) {
+      segments.push({ text: token.slice(2, -2), bold: true, italic: false });
+    } else if (token.startsWith('*') || token.startsWith('_')) {
+      segments.push({ text: token.slice(1, -1), bold: false, italic: true });
+    }
+    lastIndex = match.index + token.length;
+  }
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex), bold: false, italic: false });
+  }
+  return segments;
+}

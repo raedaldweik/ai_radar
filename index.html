@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Radar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      html[lang="ar"] body {
+        font-family: 'Noto Sans Arabic', sans-serif;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      @keyframes pulse-glow {
+        0%, 100% {
+          box-shadow: 0 0 15px 0px rgba(56, 189, 248, 0.6);
+        }
+        50% {
+          box-shadow: 0 0 25px 5px rgba(56, 189, 248, 0.6);
+        }
+      }
+      .animate-pulse-glow {
+        animation: pulse-glow 3s infinite ease-in-out;
+      }
+      @keyframes pulse-glow-corners {
+        0%, 100% {
+          filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.7));
+        }
+        50% {
+          filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.9));
+        }
+      }
+      .animate-pulse-glow-corners {
+        animation: pulse-glow-corners 3s infinite ease-in-out;
+      }
+      .markdown-body { color: #cbd5e1; font-size: 14px; line-height: 1.65; }
+.markdown-body h1 { font-size: 1.4rem; font-weight: 700; color: #f1f5f9; margin-top: 1rem; margin-bottom: 0.6rem; }
+.markdown-body h2 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+.markdown-body h3 { font-size: 1rem; font-weight: 600; color: #cbd5e1; margin-top: 1rem; margin-bottom: 0.4rem; }
+.markdown-body p { margin-bottom: 0.7rem; }
+.markdown-body ul { list-style: disc; margin-left: 1.4rem; margin-bottom: 0.7rem; }
+.markdown-body ol { list-style: decimal; margin-left: 1.6rem; margin-bottom: 0.7rem; }
+.markdown-body li { margin-bottom: 0.4rem; }
+.markdown-body li > p { margin-bottom: 0.3rem; }
+.markdown-body strong { color: #f1f5f9; font-weight: 600; }
+.markdown-body em { font-style: italic; color: #cbd5e1; }
+.markdown-body a { color: #38bdf8; text-decoration: underline; text-underline-offset: 2px; }
+.markdown-body a:hover { color: #7dd3fc; }
+.markdown-body code { background: rgba(56, 189, 248, 0.1); color: #7dd3fc; padding: 0.1rem 0.35rem; border-radius: 0.25rem; font-size: 0.85em; }
+.markdown-body pre { background: rgba(0, 0, 0, 0.3); padding: 0.75rem 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 0.7rem; }
+.markdown-body pre code { background: transparent; padding: 0; color: #e2e8f0; }
+.markdown-body blockquote { border-left: 3px solid #38bdf8; padding-left: 1rem; color: #94a3b8; margin: 0.7rem 0; font-style: italic; }
+.markdown-body hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.25rem 0; }
+.markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 0.7rem; }
+.markdown-body th, .markdown-body td { border: 1px solid rgba(255,255,255,0.1); padding: 0.4rem 0.7rem; text-align: left; }
+.markdown-body th { background: rgba(255,255,255,0.04); font-weight: 600; color: #e2e8f0; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/"
+  }
+}
+</script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

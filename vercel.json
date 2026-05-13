@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/agents/*.ts": {
+      "maxDuration": 300
+    },
+    "api/chat.ts": {
+      "maxDuration": 60
+    }
+  }
+}
