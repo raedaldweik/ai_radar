@@ -1,6 +1,6 @@
 export default {
     common: {
-        appName: 'AI Radar',
+        appName: 'Innovation Hub',
         learnMore: 'Learn More',
     },
     nav: {
@@ -37,7 +37,7 @@ export default {
         resetButton: 'Reset',
     },
     dashboard: {
-        title: 'AI Radar',
+        title: 'Innovation Hub',
         subtitle: 'A real-time overview of the AI landscape.',
         personalizedSubtitle: 'Your personalized real-time overview of the AI landscape.',
         emergingTechTitle: '8 Emerging Technologies',

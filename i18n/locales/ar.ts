@@ -1,6 +1,6 @@
 export default {
     common: {
-        appName: 'رادار الذكاء الاصطناعي',
+        appName: 'مركز الابتكار',
         learnMore: 'اعرف المزيد',
     },
     nav: {
@@ -36,7 +36,7 @@ export default {
         resetButton: 'إعادة تعيين',
     },
     dashboard: {
-        title: 'رادار الذكاء الاصطناعي',
+        title: 'مركز الابتكار',
         subtitle: 'نظرة عامة لحظية على مشهد الذكاء الاصطناعي.',
         personalizedSubtitle: 'نظرة عامة لحظية ومخصصة لك على مشهد الذكاء الاصطناعي.',
         emergingTechTitle: '8 تقنيات ناشئة',
