@@ -1,6 +1,6 @@
 export default {
     common: {
-        appName: 'مركز الابتكار',
+        appName: 'مختبر الابتكار',
         learnMore: 'اعرف المزيد',
     },
     nav: {
@@ -11,7 +11,7 @@ export default {
         intelligenceHub: 'مركز الذكاء',
     },
     welcome: {
-        title: 'مركز الابتكار',
+        title: 'مختبر الابتكار',
         subtitle: 'لوحة التحكم المخصصة لك في عالم الذكاء الاصطناعي. اختر اهتماماتك لتخصيص المحتوى.',
         techInterests: [
             'الذكاء الاصطناعي التوليدي',
@@ -36,7 +36,7 @@ export default {
         resetButton: 'إعادة تعيين',
     },
     dashboard: {
-        title: 'مركز الابتكار',
+        title: 'مختبر الابتكار',
         subtitle: 'نظرة عامة لحظية على مشهد الذكاء الاصطناعي.',
         personalizedSubtitle: 'نظرة عامة لحظية ومخصصة لك على مشهد الذكاء الاصطناعي.',
         emergingTechTitle: '8 تقنيات ناشئة',
