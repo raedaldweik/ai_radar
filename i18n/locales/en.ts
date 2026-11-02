@@ -11,8 +11,8 @@ export default {
         intelligenceHub: 'Intelligence Hub',
     },
     welcome: {
-        title_part1: 'GDRF',
-        title_styled_part: 'AI Radar',
+        title_part1: 'Innovation ',
+        title_styled_part: 'Hub',
         subtitle: 'Your personalized dashboard for the AI universe. Select your interests to customize the feed.',
         techInterests: [
             'Generative AI',
