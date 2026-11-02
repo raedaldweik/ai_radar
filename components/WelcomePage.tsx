@@ -98,10 +98,10 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
             ) : (
                 <span className="relative inline-block">
                     <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
-                        {`${t('welcome.title_part1')}${t('welcome.title_styled_part').charAt(0)}`}
+                        {t('welcome.title_part1')}
                     </span>
                     <span className="relative inline-block text-sky-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
-                        <span className="relative z-10">{t('welcome.title_styled_part').substring(1)}</span>
+                        <span className="relative z-10">{t('welcome.title_styled_part')}</span>
                         <span className="absolute inset-0 animate-pulse-glow-corners">
                             <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-sky-400 rounded-tl-lg"></span>
                             <span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-sky-400 rounded-tr-lg"></span>
