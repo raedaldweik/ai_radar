@@ -32,7 +32,8 @@ async function callChatAPI(payload: {
   });
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err.error || `Chat API error: ${response.status}`);
+    const reason = [err.error, err.detail].filter(Boolean).join(': ');
+    throw new Error(reason || `Chat API error: ${response.status}`);
   }
   return response.json();
 }
@@ -117,9 +118,10 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({ userInterests }) =
       setMessages((prev) => [...prev, modelMessage]);
     } catch (err) {
       console.error('Error sending message:', err);
+      const detail = err instanceof Error && err.message ? `\n\n(${err.message})` : '';
       const errorMessage: Message = {
         role: 'model',
-        content: t('chat.sendError'),
+        content: t('chat.sendError') + detail,
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
