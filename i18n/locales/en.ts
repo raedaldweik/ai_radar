@@ -1,6 +1,6 @@
 export default {
     common: {
-        appName: 'Innovation Hub',
+        appName: 'Innovation Lab',
         learnMore: 'Learn More',
     },
     nav: {
@@ -12,7 +12,7 @@ export default {
     },
     welcome: {
         title_part1: 'Innovation ',
-        title_styled_part: 'Hub',
+        title_styled_part: 'Lab',
         subtitle: 'Your personalized dashboard for the AI universe. Select your interests to customize the feed.',
         techInterests: [
             'Generative AI',
@@ -37,7 +37,7 @@ export default {
         resetButton: 'Reset',
     },
     dashboard: {
-        title: 'Innovation Hub',
+        title: 'Innovation Lab',
         subtitle: 'A real-time overview of the AI landscape.',
         personalizedSubtitle: 'Your personalized real-time overview of the AI landscape.',
         emergingTechTitle: '8 Emerging Technologies',
